@@ -5,8 +5,10 @@
 
 #include <cstdint>
 #include <string>
-#include <map>
+#include <set>
 #include <iostream>
+
+#define block std::pair<uint64_t, std::string>
 
 //! \brief A class that assembles a series of excerpts from a byte stream (possibly out of order,
 //! possibly overlapping) into an in-order byte stream.
@@ -14,10 +16,12 @@ class StreamReassembler {
   private:
     ByteStream _output;  //!< The reassembled in-order byte stream
     size_t _capacity;    //!< The maximum number of bytes
-    std::map<size_t, std::string> _segments{};
+    std::set<block> _segments{};
     bool _eof{};
     size_t _curr_index{};
     size_t _bytes_stored{};
+
+    block merge_interval(const block &p1, const block &p2);
 
   public:
     //! \brief Construct a `StreamReassembler` that will store up to `capacity` bytes.

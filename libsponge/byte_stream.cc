@@ -32,7 +32,7 @@ void ByteStream::pop_output(const size_t len) {
     _bytes_read += min(_data.length() - _input, len);
     _input = min(_data.length(), _input + len);
 
-    if (_data.length() > _capacity) {
+    if (_data.length() > 2 * _capacity) {
         // re-initialize to avoid _data becomes too large
         _data = _data.substr(_input);
         _input = 0;
