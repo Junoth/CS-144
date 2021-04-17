@@ -37,7 +37,7 @@ void StreamReassembler::push_substring(const string &data, const size_t index, c
         if (eof) {
             _eof = true;
         }
-    } else if (last_index < _curr_index || index >= _curr_index +_output.remaining_capacity()) {
+    } else if (last_index < _curr_index || index >= _curr_index + _output.remaining_capacity()) {
         // if all packet has been read or all packet exceed the capacity, ignore
     } else {
         if (last_index - _curr_index + 1 > _output.remaining_capacity()) {
