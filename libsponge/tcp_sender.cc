@@ -70,8 +70,9 @@ void TCPSender::fill_window() {
             size_t payload_size = min(data_size - i, TCPConfig::MAX_PAYLOAD_SIZE);
             string payload = _data.substr(i, payload_size);
             size_t left_size = get_window() - (_next_seqno - _ack_no);
-            _fin = _stream.input_ended() && _stream.buffer_empty() && payload.size() + 1 <= left_size;
-            TCPSegment seg = buildSegment(false, _fin, next_seqno(), payload);
+            bool fin = _stream.input_ended() && _stream.buffer_empty() && payload.size() + 1 <= left_size;
+            _fin = fin;
+            TCPSegment seg = buildSegment(false, fin, next_seqno(), payload);
             send_segment(seg, true);
             i += payload_size;
         }
