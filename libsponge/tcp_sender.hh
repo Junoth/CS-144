@@ -5,6 +5,7 @@
 #include "tcp_config.hh"
 #include "tcp_segment.hh"
 #include "wrapping_integers.hh"
+#include "retransmission_timer.hh"
 
 #include <functional>
 #include <queue>
@@ -23,14 +24,29 @@ class TCPSender {
     //! outbound queue of segments that the TCPSender wants sent
     std::queue<TCPSegment> _segments_out{};
 
-    //! retransmission timer for the connection
-    unsigned int _initial_retransmission_timeout;
+    //! queue of outstanding segments that have not been acked
+    std::queue<TCPSegment> _outstand_segments{};
+
+    //! timer used by the sender
+    RetransmissionTimer _timer;
 
     //! outgoing stream of bytes that have not yet been sent
     ByteStream _stream;
 
     //! the (absolute) sequence number for the next byte to be sent
     uint64_t _next_seqno{0};
+
+    uint64_t _ack_no{0};
+
+    uint64_t _window{1};
+
+    uint64_t _retransmission_count{0};
+
+    bool _fin{false};
+
+    size_t get_window();
+
+    void send_segment(const TCPSegment seg, bool retransmission);
 
   public:
     //! Initialize a TCPSender
