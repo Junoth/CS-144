@@ -22,15 +22,15 @@ class TCPReceiver {
  
     WrappingInt32 _isn;
 
-    bool _ack;
-    bool _fin;
+    bool _ack{false};
+    bool _fin{false};
 
   public:
     //! \brief Construct a TCP receiver
     //!
     //! \param capacity the maximum number of bytes that the receiver will
     //!                 store in its buffers at any give time.
-    TCPReceiver(const size_t capacity) : _reassembler(capacity), _capacity(capacity), _isn(0), _ack(false), _fin(false) {
+    TCPReceiver(const size_t capacity) : _reassembler(capacity), _capacity(capacity), _isn(0) {
     }
 
     //! \name Accessors to provide feedback to the remote TCPSender
@@ -67,6 +67,12 @@ class TCPReceiver {
     ByteStream &stream_out() { return _reassembler.stream_out(); }
     const ByteStream &stream_out() const { return _reassembler.stream_out(); }
     //!@}
+
+    bool in_listen() const;
+
+    bool fin_recv() const;
+
+    bool is_seqno_valid(WrappingInt32 seqno) const;
 };
 
 #endif  // SPONGE_LIBSPONGE_TCP_RECEIVER_HH

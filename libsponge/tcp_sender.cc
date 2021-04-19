@@ -52,6 +52,7 @@ void TCPSender::fill_window() {
         // start, send syn packet
         TCPSegment syn_seg = buildSegment(true, false, next_seqno(), "");
         send_segment(syn_seg, true);
+        _syn = true;
     }
 
     if (_next_seqno - _ack_no >= get_window() || _fin) {
@@ -70,9 +71,8 @@ void TCPSender::fill_window() {
             size_t payload_size = min(data_size - i, TCPConfig::MAX_PAYLOAD_SIZE);
             string payload = _data.substr(i, payload_size);
             size_t left_size = get_window() - (_next_seqno - _ack_no);
-            bool fin = _stream.input_ended() && _stream.buffer_empty() && payload.size() + 1 <= left_size;
-            _fin = fin;
-            TCPSegment seg = buildSegment(false, fin, next_seqno(), payload);
+            _fin = _stream.input_ended() && _stream.buffer_empty() && payload.size() + 1 <= left_size;
+            TCPSegment seg = buildSegment(false, _fin, next_seqno(), payload);
             send_segment(seg, true);
             i += payload_size;
         }
@@ -89,10 +89,14 @@ void TCPSender::fill_window() {
 
 //! \param ackno The remote receiver's ackno (acknowledgment number)
 //! \param window_size The remote receiver's advertised window size
-void TCPSender::ack_received(const WrappingInt32 ackno, const uint16_t window_size) { 
+void TCPSender::ack_received(const WrappingInt32 ackno, const uint16_t window_size) {
     uint64_t abs_ackno = unwrap(ackno, _isn, _ack_no);
-    _window = window_size;
+    if (abs_ackno > _next_seqno) {
+        // add for edge case: received ack number is larger than next seq number
+        return;
+    }
 
+    _window = window_size;
     while (!_outstand_segments.empty()) {
         TCPSegment seg = _outstand_segments.front();
         uint64_t abs_seqno = unwrap(seg.header().seqno, _isn, _ack_no);
@@ -143,4 +147,12 @@ unsigned int TCPSender::consecutive_retransmissions() const {
 void TCPSender::send_empty_segment() {
     TCPSegment empty_seg = buildSegment(false, false, next_seqno(), "");
     _segments_out.push(empty_seg);    
+}
+
+bool TCPSender::syn_sent() {
+    return _syn;
+}
+
+bool TCPSender::fin_sent() {
+    return _fin;
 }
