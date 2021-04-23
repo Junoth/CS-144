@@ -19,10 +19,11 @@ class TCPReceiver {
 
     //! The maximum number of bytes we'll store.
     size_t _capacity;
+    size_t _ackno{0};
  
     WrappingInt32 _isn;
 
-    bool _ack{false};
+    bool _syn{false};
     bool _fin{false};
 
   public:
@@ -60,19 +61,13 @@ class TCPReceiver {
     size_t unassembled_bytes() const { return _reassembler.unassembled_bytes(); }
 
     //! \brief handle an inbound segment
-    void segment_received(const TCPSegment &seg);
+    bool segment_received(const TCPSegment &seg);
 
     //! \name "Output" interface for the reader
     //!@{
     ByteStream &stream_out() { return _reassembler.stream_out(); }
     const ByteStream &stream_out() const { return _reassembler.stream_out(); }
     //!@}
-
-    bool in_listen() const;
-
-    bool fin_recv() const;
-
-    bool is_seqno_valid(WrappingInt32 seqno) const;
 };
 
 #endif  // SPONGE_LIBSPONGE_TCP_RECEIVER_HH

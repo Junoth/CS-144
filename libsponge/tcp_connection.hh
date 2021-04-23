@@ -23,7 +23,6 @@ class TCPConnection {
 
     size_t _time_since_last_segment_received{0};
     bool _active{true};
-    bool _done{false};
     bool _rst{false};
     void _test_end();
     void _unclean_close();

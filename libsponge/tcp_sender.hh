@@ -38,6 +38,8 @@ class TCPSender {
 
     uint64_t _ack_no{0};
 
+    uint64_t _bytes_in_flight{0};
+
     uint64_t _window{1};
 
     uint64_t _retransmission_count{0};
@@ -66,7 +68,7 @@ class TCPSender {
     //!@{
 
     //! \brief A new acknowledgment was received
-    void ack_received(const WrappingInt32 ackno, const uint16_t window_size);
+    bool ack_received(const WrappingInt32 ackno, const uint16_t window_size);
 
     //! \brief Generate an empty-payload segment (useful for creating empty ACK segments)
     void send_empty_segment();
@@ -107,8 +109,6 @@ class TCPSender {
     //!@}
 
     bool syn_sent();
-
-    bool fin_sent();
 };
 
 #endif  // SPONGE_LIBSPONGE_TCP_SENDER_HH
