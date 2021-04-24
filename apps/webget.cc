@@ -12,7 +12,7 @@ void get_URL(const string &host, const string &path) {
     string res;
 
     Address address(host, service_name);
-    CS144TCPSocket tcp_socket;
+    FullStackSocket tcp_socket;
     tcp_socket.connect(address);
     tcp_socket.write(get_request, true);
     while(!tcp_socket.eof()) {

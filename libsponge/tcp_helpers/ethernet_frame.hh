@@ -17,6 +17,10 @@ class EthernetFrame {
     //! \brief Serialize the frame to a string
     BufferList serialize() const;
 
+    EthernetFrame() = default;
+
+    EthernetFrame(EthernetHeader &header, BufferList payload): _header(header), _payload(payload) {}
+
     //! \name Accessors
     //!@{
     const EthernetHeader &header() const { return _header; }

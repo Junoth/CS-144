@@ -7,6 +7,10 @@
 
 using namespace std;
 
+bool ethernet_addr_equals(const EthernetAddress a1, const EthernetAddress a2) {
+    return to_string(a1) == to_string(a2);
+}
+
 ParseResult EthernetHeader::parse(NetParser &p) {
     if (p.buffer().size() < EthernetHeader::LENGTH) {
         return ParseResult::PacketTooShort;

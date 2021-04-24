@@ -2,10 +2,13 @@
 #define SPONGE_LIBSPONGE_NETWORK_INTERFACE_HH
 
 #include "ethernet_frame.hh"
+#include "arp_message.hh"
 #include "tcp_over_ip.hh"
 #include "tun.hh"
 
 #include <optional>
+#include <queue>
+#include <unordered_map>
 #include <queue>
 
 //! \brief A "network interface" that connects IP (the internet layer, or network layer)
@@ -37,8 +40,29 @@ class NetworkInterface {
     //! IP (known as internet-layer or network-layer) address of the interface
     Address _ip_address;
 
+    //! fixed interval to resend ARP, value is 5000ms
+    const uint64_t _arp_resend_interval = 5000;
+
+    //! fixed IP-to-Ethernet mapping timeout, value is 30000ms
+    const uint64_t _ip_to_ethernet_mapping_outdate_interval = 30000;
+
     //! outbound queue of Ethernet frames that the NetworkInterface wants sent
     std::queue<EthernetFrame> _frames_out{};
+
+    //! map of ip address and (ethernet address, time)
+    std::unordered_map<uint32_t, std::pair<uint64_t, EthernetAddress>> ip2Ethernet{};
+
+    //! map of ip address and datagram queue
+    std::unordered_map<uint32_t, std::pair<uint64_t, std::queue<InternetDatagram>>> ip2queue{};
+
+    //! convert datagram to ethernet frame and push to queue when destination address is known
+    void push_ip_datagram(const InternetDatagram &dgram, const EthernetAddress& dst_addr); 
+
+    //! create a ARP reply and push to queue
+    void push_arp_reply(const ARPMessage &arp_msg); 
+
+    //! broadcast ARP requeswt for certain ip
+    void broadcast(const uint32_t ip_addr);
 
   public:
     //! \brief Construct a network interface with given Ethernet (network-access-layer) and IP (internet-layer) addresses

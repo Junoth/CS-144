@@ -14,6 +14,8 @@ constexpr EthernetAddress ETHERNET_BROADCAST = {0xff, 0xff, 0xff, 0xff, 0xff, 0x
 //! Printable representation of an EthernetAddress
 std::string to_string(const EthernetAddress address);
 
+bool ethernet_addr_equals(const EthernetAddress a1, const EthernetAddress a2);
+
 //! \brief Ethernet frame header
 struct EthernetHeader {
     static constexpr size_t LENGTH = 14;          //!< Ethernet header length in bytes
