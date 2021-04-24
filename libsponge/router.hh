@@ -41,6 +41,19 @@ class AsyncNetworkInterface : public NetworkInterface {
 //! \brief A router that has multiple network interfaces and
 //! performs longest-prefix-match routing between them.
 class Router {
+
+    struct RouterInfo {
+        uint32_t route_prefix;
+        uint8_t prefix_length;
+        std::optional<Address> next_hop;
+        size_t interface_num;
+    };
+
+    //! The data structure to store all router information
+    //! It's not a cost-effient solution which needs O(N) time, but enough for this lab
+    //! We can use prefix trie for a better performance
+    std::vector<RouterInfo> _routers{};
+
     //! The router's collection of network interfaces
     std::vector<AsyncNetworkInterface> _interfaces{};
 
@@ -48,6 +61,8 @@ class Router {
     //! as specified by the route with the longest prefix_length that matches the
     //! datagram's destination address.
     void route_one_datagram(InternetDatagram &dgram);
+
+    bool is_prefix_match(const RouterInfo& rt_info, uint32_t dst_ip);
 
   public:
     //! Add an interface to the router
